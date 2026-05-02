@@ -21,7 +21,14 @@ QUIZ_DATA = [
     {"question": "Какое ключевое слово создает функцию?", "options": ["def", "function", "create"], "correct": "def"}
 ]
 
-bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+
+bot = Bot(
+    token=TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+)
+
 dp = Dispatcher(storage=MemoryStorage())
 
 class QuizStates(StatesGroup):
