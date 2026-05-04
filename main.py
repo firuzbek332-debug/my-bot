@@ -9,7 +9,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
 
 # ⚠️ ВСТАВЬ СВОИ ДАННЫЕ СЮДА
-TOKEN = "YOUR_BOT_TOKEN_HERE"
+TOKEN = "1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ"
 USERNAME = "твой_ник" # Напиши сюда свой ник в Телеграм без значка @
 
 QUIZ_DATA = [
