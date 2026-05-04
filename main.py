@@ -1,6 +1,7 @@
 import asyncio
 import random
 from aiogram import Bot, Dispatcher, types, F
+from aiogram.client.default import DefaultBotProperties
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram.fsm.context import FSMContext
@@ -9,8 +10,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
 
 # ⚠️ ВСТАВЬ СВОИ ДАННЫЕ СЮДА
-TOKEN = "1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ"
-USERNAME = "твой_ник" # Напиши сюда свой ник в Телеграм без значка @
+TOKEN = "8659093719:AAFgYCwcLSAJyxVgW-Zto415p55lUlspAWw"
+USERNAME = "firuzbek_dew" # Напиши сюда свой ник в Телеграм без значка @
 
 QUIZ_DATA = [
     {"question": "Как вывести текст в консоль в Python?", "options": ["print()", "echo()", "say()"], "correct": "print()"},
@@ -22,7 +23,7 @@ QUIZ_DATA = [
     {"question": "Какое ключевое слово создает функцию?", "options": ["def", "function", "create"], "correct": "def"}
 ]
 
-bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
+bot = bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(storage=MemoryStorage())
 
 class QuizStates(StatesGroup):
