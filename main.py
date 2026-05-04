@@ -8,9 +8,10 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
 
-TOKEN = "8659093719:AAFgYCwcLSAJyxVgW-Zto415p55lUlspAWw"
+# ⚠️ ВСТАВЬ СВОИ ДАННЫЕ СЮДА
+TOKEN = "YOUR_BOT_TOKEN_HERE"
+USERNAME = "твой_ник" # Напиши сюда свой ник в Телеграм без значка @
 
-# 7 Обучающих вопросов (профессионально оформленных)
 QUIZ_DATA = [
     {"question": "Как вывести текст в консоль в Python?", "options": ["print()", "echo()", "say()"], "correct": "print()"},
     {"question": "Какой тип данных используется для целых чисел?", "options": ["int", "str", "float"], "correct": "int"},
@@ -21,14 +22,7 @@ QUIZ_DATA = [
     {"question": "Какое ключевое слово создает функцию?", "options": ["def", "function", "create"], "correct": "def"}
 ]
 
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
-
-bot = Bot(
-    token=TOKEN,
-    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
-)
-
+bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher(storage=MemoryStorage())
 
 class QuizStates(StatesGroup):
@@ -36,7 +30,6 @@ class QuizStates(StatesGroup):
 
 user_data = {}
 
-# Вспомогательная функция для генерации прогресс-бара
 def get_progress_bar(current, total=7):
     filled = "🟩" * current
     empty = "⬜" * (total - current)
@@ -45,8 +38,6 @@ def get_progress_bar(current, total=7):
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
-    
-    # Имитируем печать для реалистичности
     await bot.send_chat_action(chat_id=message.chat.id, action="typing")
     await asyncio.sleep(1)
     
@@ -66,11 +57,39 @@ async def cmd_start(message: types.Message, state: FSMContext):
 
 @dp.message(F.text == "📂 Наши Услуги")
 async def text_services(message: types.Message):
-    await message.answer("🛠 <b>Наши Услуги</b>\n\nМы занимаемся профессиональной разработкой Telegram-ботов любой сложности под ключ.")
+    builder = InlineKeyboardBuilder()
+    builder.button(text="👨‍💻 Обсудить проект", url=f"https://t.me{USERNAME}")
+    
+    await message.answer(
+        "🛠 <b>Наши Услуги</b>\n\n"
+        "Мы создаем профессиональных ботов любой сложности под ключ 🔑\n\n"
+        "🔹 <b>Визитки и Автоответчики</b>\n"
+        "<i>(Бот расскажет о вас и ответит на частые вопросы)</i>\n\n"
+        "🔹 <b>Магазины и Доставка</b>\n"
+        "<i>(Каталог товаров, корзина и прием оплаты картой)</i>\n\n"
+        "🔹 <b>Игры и Квесты</b>\n"
+        "<i>(Как наша мини-игра: с жизнями, жетонами и рекордами!)</i>\n\n"
+        "🔹 <b>Автоматизация</b>\n"
+        "<i>(Рассылки, парсинг данных, учет клиентов)</i>\n\n"
+        "👉 Нажми кнопку ниже, чтобы рассказать о своей идее!",
+        reply_markup=builder.as_markup(),
+        parse_mode=ParseMode.HTML
+    )
 
 @dp.message(F.text == "💳 Цены")
 async def text_price(message: types.Message):
-    await message.answer("💰 <b>Прайс-лист</b>\n\nРазработка базового бота стартует от <b>3 000 ₽</b> (или эквивалент в валюте).")
+    await message.answer(
+        "💳 <b>Стоимость Разработки</b>\n\n"
+        "Итоговая цена зависит от сложности функций. Вот ориентировочные пакеты:\n\n"
+        "🟢 <b>Пакет «Старт»</b> — от 1 500 ₽\n"
+        "<i>(Простой бот-визитка, меню, кнопки, текст)</i>\n\n"
+        "🟡 <b>Пакет «Бизнес»</b> — от 5 000 ₽\n"
+        "<i>(База данных, сохранение пользователей, сложные сценарии)</i>\n\n"
+        "🔴 <b>Пакет «Про»</b> — от 10 000 ₽\n"
+        "<i>(Магазины, платежные системы, сложные игровые механики)</i>\n\n"
+        "💬 <i>Точная стоимость рассчитывается индивидуально после обсуждения ТЗ.</i>",
+        parse_mode=ParseMode.HTML
+    )
 
 @dp.message(F.text == "👤 Мой Профиль")
 async def text_profile(message: types.Message):
@@ -85,7 +104,8 @@ async def text_profile(message: types.Message):
         "📊 <b>Ваш Профиль</b>\n\n"
         f"👤 <b>Пользователь:</b> {message.from_user.first_name}\n"
         f"🪙 <b>Баланс жетонов:</b> {tokens} шт.\n"
-        f"🏆 <b>Лучший результат:</b> {best}/7 уровней"
+        f"🏆 <b>Лучший результат:</b> {best}/7 уровней",
+        parse_mode=ParseMode.HTML
     )
 
 @dp.message(F.text == "🚀 Начать Квест")
@@ -117,7 +137,8 @@ async def ask_question(message: types.Message, user_id: int):
         await message.answer(
             "<b>🎉 ПОЗДРАВЛЯЕМ!</b>\n\n"
             "Ты успешно ответил на все 7 вопросов и доказал свой профессионализм!\n\n"
-            "💰 <b>Награда:</b> +10 жетонов 🪙"
+            "💰 <b>Награда:</b> +10 жетонов 🪙",
+            parse_mode=ParseMode.HTML
         )
         return
         
@@ -141,7 +162,8 @@ async def ask_question(message: types.Message, user_id: int):
         f"Прогресс: {progress}\n"
         f"Жизни: {lives_heart}\n\n"
         f"<b>Вопрос:</b> {question_item['question']}", 
-        reply_markup=builder.as_markup()
+        reply_markup=builder.as_markup(),
+        parse_mode=ParseMode.HTML
     )
 
 @dp.callback_query(F.data.startswith("q_"), QuizStates.in_game)
@@ -153,8 +175,8 @@ async def check_answer(callback: types.CallbackQuery, state: FSMContext):
         return
 
     parts = callback.data.split("_")
-    q_index = int(parts[1])
-    is_correct = parts[2] == "1"
+    q_index = int(parts)
+    is_correct = parts == "1"
     
     if q_index != user_data[user_id]["current_question"]:
         await callback.answer("Нельзя хитрить и нажимать старые кнопки! 😉")
@@ -162,7 +184,7 @@ async def check_answer(callback: types.CallbackQuery, state: FSMContext):
         
     if is_correct:
         user_data[user_id]["current_question"] += 1
-        await callback.message.edit_text("⚡️ <b>Верно!</b> Загружаем следующий уровень...")
+        await callback.message.edit_text("⚡️ <b>Верно!</b> Загружаем следующий уровень...", parse_mode=ParseMode.HTML)
         await asyncio.sleep(0.5)
         await ask_question(callback.message, user_id)
     else:
@@ -172,11 +194,12 @@ async def check_answer(callback: types.CallbackQuery, state: FSMContext):
             await state.clear()
             await callback.message.edit_text(
                 "💔 <b>Игра окончена!</b>\n\n"
-                "К сожалению, у тебя закончились жизни. Попробуй пройти квест ещё раз, нажав кнопку в меню."
+                "К сожалению, у тебя закончились жизни. Попробуй пройти квест ещё раз, нажав кнопку в меню.",
+                parse_mode=ParseMode.HTML
             )
         else:
             user_data[user_id]["current_question"] += 1
-            await callback.message.edit_text("❌ <b>Неверно!</b> Ты потерял жизнь.")
+            await callback.message.edit_text("❌ <b>Неверно!</b> Ты потерял жизнь.", parse_mode=ParseMode.HTML)
             await asyncio.sleep(0.5)
             await ask_question(callback.message, user_id)
             
@@ -186,7 +209,7 @@ async def check_answer(callback: types.CallbackQuery, state: FSMContext):
 async def echo_all(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state == QuizStates.in_game.state:
-        await message.answer("🤫 <b>Сфокусируйся на квесте!</b> Сначала заверши игру.")
+        await message.answer("🤫 <b>Сфокусируйся на квесте!</b> Сначала заверши игру.", parse_mode=ParseMode.HTML)
     else:
         await message.answer("🔮 Пожалуйста, воспользуйся кнопками меню ниже.")
 
