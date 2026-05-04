@@ -22,7 +22,6 @@ QUIZ_DATA = [
     {"question": "Как правильно начать цикл 'while' в Python?", "options": ["while x < 5:", "while x < 5", "while (x < 5)"], "correct": "while x < 5:"},
     {"question": "Какое ключевое слово создает функцию?", "options": ["def", "function", "create"], "correct": "def"}
 ]
-
 bot = bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(storage=MemoryStorage())
 
@@ -43,38 +42,16 @@ async def cmd_start(message: types.Message, state: FSMContext):
     await asyncio.sleep(1)
     
     builder = ReplyKeyboardBuilder()
-    builder.button(text="📂 Наши Услуги")
     builder.button(text="💳 Цены")
     builder.button(text="🚀 Начать Квест")
     builder.button(text="👤 Мой Профиль")
-    builder.adjust(2, 2)
+    builder.adjust(1, 2)
     
     await message.answer(
         "<b>👋 Добро пожаловать в Академию Будущего!</b>\n\n"
         "Здесь ты сможешь проверить свои знания в программировании и заработать реальные жетоны.\n\n"
         "<i>Нажми кнопку '🚀 Начать Квест', чтобы начать испытание!</i>", 
         reply_markup=builder.as_markup(resize_keyboard=True)
-    )
-
-@dp.message(F.text == "📂 Наши Услуги")
-async def text_services(message: types.Message):
-    builder = InlineKeyboardBuilder()
-    builder.button(text="👨‍💻 Обсудить проект", url=f"https://t.me{USERNAME}")
-    
-    await message.answer(
-        "🛠 <b>Наши Услуги</b>\n\n"
-        "Мы создаем профессиональных ботов любой сложности под ключ 🔑\n\n"
-        "🔹 <b>Визитки и Автоответчики</b>\n"
-        "<i>(Бот расскажет о вас и ответит на частые вопросы)</i>\n\n"
-        "🔹 <b>Магазины и Доставка</b>\n"
-        "<i>(Каталог товаров, корзина и прием оплаты картой)</i>\n\n"
-        "🔹 <b>Игры и Квесты</b>\n"
-        "<i>(Как наша мини-игра: с жизнями, жетонами и рекордами!)</i>\n\n"
-        "🔹 <b>Автоматизация</b>\n"
-        "<i>(Рассылки, парсинг данных, учет клиентов)</i>\n\n"
-        "👉 Нажми кнопку ниже, чтобы рассказать о своей идее!",
-        reply_markup=builder.as_markup(),
-        parse_mode=ParseMode.HTML
     )
 
 @dp.message(F.text == "💳 Цены")
