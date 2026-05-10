@@ -11,7 +11,7 @@ from aiogram.enums import ParseMode
 
 # ⚠️ ВСТАВЬ СВОИ ДАННЫЕ СЮДА
 TOKEN = "8659093719:AAFgYCwcLSAJyxVgW-Zto415p55lUlspAWw"
-USERNAME = "firuzbek_dew" # Напиши сюда свой ник в Телеграм без значка @
+USERNAME = "firuzbek_dew"
 
 QUIZ_DATA = [
     {"question": "Как вывести текст в консоль в Python?", "options": ["print()", "echo()", "say()"], "correct": "print()"},
@@ -22,7 +22,8 @@ QUIZ_DATA = [
     {"question": "Как правильно начать цикл 'while' в Python?", "options": ["while x < 5:", "while x < 5", "while (x < 5)"], "correct": "while x < 5:"},
     {"question": "Какое ключевое слово создает функцию?", "options": ["def", "function", "create"], "correct": "def"}
 ]
-bot = bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(storage=MemoryStorage())
 
 class QuizStates(StatesGroup):
@@ -58,14 +59,10 @@ async def cmd_start(message: types.Message, state: FSMContext):
 async def text_price(message: types.Message):
     await message.answer(
         "💳 <b>Стоимость Разработки</b>\n\n"
-        "Итоговая цена зависит от сложности функций. Вот ориентировочные пакеты:\n\n"
-        "🟢 <b>Пакет «Старт»</b> — от 1 500 ₽\n"
-        "<i>(Простой бот-визитка, меню, кнопки, текст)</i>\n\n"
-        "🟡 <b>Пакет «Бизнес»</b> — от 5 000 ₽\n"
-        "<i>(База данных, сохранение пользователей, сложные сценарии)</i>\n\n"
-        "🔴 <b>Пакет «Про»</b> — от 10 000 ₽\n"
-        "<i>(Магазины, платежные системы, сложные игровые механики)</i>\n\n"
-        "💬 <i>Точная стоимость рассчитывается индивидуально после обсуждения ТЗ.</i>",
+        "🟢 Пакет «Старт» — от 1 500 ₽\n"
+        "🟡 Пакет «Бизнес» — от 5 000 ₽\n"
+        "🔴 Пакет «Про» — от 10 000 ₽\n\n"
+        "💬 Точная стоимость рассчитывается индивидуально.",
         parse_mode=ParseMode.HTML
     )
 
@@ -80,9 +77,9 @@ async def text_profile(message: types.Message):
     
     await message.answer(
         "📊 <b>Ваш Профиль</b>\n\n"
-        f"👤 <b>Пользователь:</b> {message.from_user.first_name}\n"
-        f"🪙 <b>Баланс жетонов:</b> {tokens} шт.\n"
-        f"🏆 <b>Лучший результат:</b> {best}/7 уровней",
+        f"👤 Пользователь: {message.from_user.first_name}\n"
+        f"🪙 Баланс жетонов: {tokens}\n"
+        f"🏆 Лучший результат: {best}/7 уровней",
         parse_mode=ParseMode.HTML
     )
 
@@ -114,8 +111,8 @@ async def ask_question(message: types.Message, user_id: int):
         data["tokens"] += 10
         await message.answer(
             "<b>🎉 ПОЗДРАВЛЯЕМ!</b>\n\n"
-            "Ты успешно ответил на все 7 вопросов и доказал свой профессионализм!\n\n"
-            "💰 <b>Награда:</b> +10 жетонов 🪙",
+            "Ты успешно ответил на все 7 вопросов!\n\n"
+            "💰 Награда: +10 жетонов 🪙",
             parse_mode=ParseMode.HTML
         )
         return
@@ -151,17 +148,10 @@ async def check_answer(callback: types.CallbackQuery, state: FSMContext):
     if user_id not in user_data:
         await callback.answer("Сессия потеряна. Попробуй заново!")
         return
-@dp.callback_query(F.data.startswith("q_"), QuizStates.in_game)
-async def check_answer(callback: types.CallbackQuery, state: FSMContext):
-    user_id = callback.from_user.id
-    
-    if user_id not in user_data:
-        await callback.answer("Сессия потеряна. Попробуй заново!")
-        return
 
     parts = callback.data.split("_")
-    q_index = int(parts[1])
-    is_correct = parts[2] == "1"
+    q_index = int(parts[1])          # исправлено
+    is_correct = parts[2] == "1"     # исправлено
     
     if q_index != user_data[user_id]["current_question"]:
         await callback.answer("Нельзя хитрить и нажимать старые кнопки! 😉")
@@ -179,7 +169,7 @@ async def check_answer(callback: types.CallbackQuery, state: FSMContext):
             await state.clear()
             await callback.message.edit_text(
                 "💔 <b>Игра окончена!</b>\n\n"
-                "К сожалению, у тебя закончились жизни. Попробуй пройти квест ещё раз, нажав кнопку в меню.",
+                "К сожалению, у тебя закончились жизни.",
                 parse_mode=ParseMode.HTML
             )
         else:
@@ -194,10 +184,13 @@ async def check_answer(callback: types.CallbackQuery, state: FSMContext):
 async def echo_all(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state == QuizStates.in_game.state:
-        await message.answer("🤫 <b>Сфокусируйся на квесте!</b> Сначала заверши игру.", parse_mode=ParseMode.HTML)
+        await message.answer("🤫 <b>Сфокусируйся на квесте!</b>", parse_mode=ParseMode.HTML)
     else:
         await message.answer("🔮 Пожалуйста, воспользуйся кнопками меню ниже.")
 
 async def main():
     await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
 
