@@ -151,10 +151,17 @@ async def check_answer(callback: types.CallbackQuery, state: FSMContext):
     if user_id not in user_data:
         await callback.answer("Сессия потеряна. Попробуй заново!")
         return
+@dp.callback_query(F.data.startswith("q_"), QuizStates.in_game)
+async def check_answer(callback: types.CallbackQuery, state: FSMContext):
+    user_id = callback.from_user.id
+    
+    if user_id not in user_data:
+        await callback.answer("Сессия потеряна. Попробуй заново!")
+        return
 
     parts = callback.data.split("_")
-    q_index = int(parts)
-    is_correct = parts == "1"
+    q_index = int(parts[1])
+    is_correct = parts[2] == "1"
     
     if q_index != user_data[user_id]["current_question"]:
         await callback.answer("Нельзя хитрить и нажимать старые кнопки! 😉")
@@ -194,5 +201,3 @@ async def echo_all(message: types.Message, state: FSMContext):
 async def main():
     await dp.start_polling(bot)
 
-if __name__ == "__main__":
-    asyncio.run(main())
