@@ -1,196 +1,23 @@
-import asyncio
-import random
-from aiogram import Bot, Dispatcher, types, F
-from aiogram.client.default import DefaultBotProperties
-from aiogram.filters import Command
-from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.enums import ParseMode
+from aiogram import Bot, Dispatcher, executor, types
+import openai
 
-# ⚠️ ВСТАВЬ СВОИ ДАННЫЕ СЮДА
-TOKEN = "8659093719:AAFgYCwcLSAJyxVgW-Zto415p55lUlspAWw"
-USERNAME = "firuzbek_dew"
+API_TOKEN = "8659093719:AAFgYCwcLSAJyxVgW-Zto415p55lUlspAWw"
+OPENAI_KEY = "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"
 
-QUIZ_DATA = [
-    {"question": "Как вывести текст в консоль в Python?", "options": ["print()", "echo()", "say()"], "correct": "print()"},
-    {"question": "Какой тип данных используется для целых чисел?", "options": ["int", "str", "float"], "correct": "int"},
-    {"question": "Какой символ используется для комментариев в Python?", "options": ["#", "//", "/*"], "correct": "#"},
-    {"question": "Какое имя переменной написано правильно?", "options": ["my_var", "1var", "my-var"], "correct": "my_var"},
-    {"question": "Что делает функция len() в Python?", "options": ["Возвращает длину", "Складывает числа", "Удаляет данные"], "correct": "Возвращает длину"},
-    {"question": "Как правильно начать цикл 'while' в Python?", "options": ["while x < 5:", "while x < 5", "while (x < 5)"], "correct": "while x < 5:"},
-    {"question": "Какое ключевое слово создает функцию?", "options": ["def", "function", "create"], "correct": "def"}
-]
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher(bot)
 
-bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-dp = Dispatcher(storage=MemoryStorage())
+openai.api_key = OPENAI_KEY
 
-class QuizStates(StatesGroup):
-    in_game = State()
-
-user_data = {}
-
-def get_progress_bar(current, total=7):
-    filled = "🟩" * current
-    empty = "⬜" * (total - current)
-    return f"{filled}{empty} ({current}/{total})"
-
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message, state: FSMContext):
-    await state.clear()
-    await bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    await asyncio.sleep(1)
-    
-    builder = ReplyKeyboardBuilder()
-    builder.button(text="💳 Цены")
-    builder.button(text="🚀 Начать Квест")
-    builder.button(text="👤 Мой Профиль")
-    builder.adjust(1, 2)
-    
-    await message.answer(
-        "<b>👋 Добро пожаловать в Академию Будущего!</b>\n\n"
-        "Здесь ты сможешь проверить свои знания в программировании и заработать реальные жетоны.\n\n"
-        "<i>Нажми кнопку '🚀 Начать Квест', чтобы начать испытание!</i>", 
-        reply_markup=builder.as_markup(resize_keyboard=True)
+@dp.message_handler()
+async def handle_message(message: types.Message):
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=f"Отвечай грубо и саркастично: {message.text}",
+        max_tokens=150,
+        temperature=0.9
     )
-
-@dp.message(F.text == "💳 Цены")
-async def text_price(message: types.Message):
-    await message.answer(
-        "💳 <b>Стоимость Разработки</b>\n\n"
-        "🟢 Пакет «Старт» — от 1 500 ₽\n"
-        "🟡 Пакет «Бизнес» — от 5 000 ₽\n"
-        "🔴 Пакет «Про» — от 10 000 ₽\n\n"
-        "💬 Точная стоимость рассчитывается индивидуально.",
-        parse_mode=ParseMode.HTML
-    )
-
-@dp.message(F.text == "👤 Мой Профиль")
-async def text_profile(message: types.Message):
-    user_id = message.from_user.id
-    if user_id not in user_data:
-        user_data[user_id] = {"tokens": 0, "best_score": 0}
-        
-    tokens = user_data[user_id].get("tokens", 0)
-    best = user_data[user_id].get("best_score", 0)
-    
-    await message.answer(
-        "📊 <b>Ваш Профиль</b>\n\n"
-        f"👤 Пользователь: {message.from_user.first_name}\n"
-        f"🪙 Баланс жетонов: {tokens}\n"
-        f"🏆 Лучший результат: {best}/7 уровней",
-        parse_mode=ParseMode.HTML
-    )
-
-@dp.message(F.text == "🚀 Начать Квест")
-async def start_quiz(message: types.Message, state: FSMContext):
-    user_id = message.from_user.id
-    
-    if user_id not in user_data:
-        user_data[user_id] = {"tokens": 0, "best_score": 0}
-        
-    user_data[user_id]["lives"] = 3
-    user_data[user_id]["current_question"] = 0
-    
-    shuffled_quiz = QUIZ_DATA.copy()
-    random.shuffle(shuffled_quiz)
-    user_data[user_id]["questions"] = shuffled_quiz[:7]
-    
-    await state.set_state(QuizStates.in_game)
-    await ask_question(message, user_id)
-
-async def ask_question(message: types.Message, user_id: int):
-    data = user_data[user_id]
-    q_index = data["current_question"]
-    
-    if q_index > data.get("best_score", 0):
-        data["best_score"] = q_index
-    
-    if q_index >= 7:
-        data["tokens"] += 10
-        await message.answer(
-            "<b>🎉 ПОЗДРАВЛЯЕМ!</b>\n\n"
-            "Ты успешно ответил на все 7 вопросов!\n\n"
-            "💰 Награда: +10 жетонов 🪙",
-            parse_mode=ParseMode.HTML
-        )
-        return
-        
-    question_item = data["questions"][q_index]
-    
-    builder = InlineKeyboardBuilder()
-    options = question_item["options"].copy()
-    random.shuffle(options)
-    
-    for opt in options:
-        is_correct = "1" if opt == question_item["correct"] else "0"
-        builder.button(text=opt, callback_data=f"q_{q_index}_{is_correct}")
-        
-    builder.adjust(1)
-    
-    lives_heart = "❤️" * data["lives"]
-    progress = get_progress_bar(q_index)
-    
-    await message.answer(
-        f"<b>🎯 Квест: Уровень {q_index + 1}</b>\n"
-        f"Прогресс: {progress}\n"
-        f"Жизни: {lives_heart}\n\n"
-        f"<b>Вопрос:</b> {question_item['question']}", 
-        reply_markup=builder.as_markup(),
-        parse_mode=ParseMode.HTML
-    )
-
-@dp.callback_query(F.data.startswith("q_"), QuizStates.in_game)
-async def check_answer(callback: types.CallbackQuery, state: FSMContext):
-    user_id = callback.from_user.id
-    
-    if user_id not in user_data:
-        await callback.answer("Сессия потеряна. Попробуй заново!")
-        return
-
-    parts = callback.data.split("_")
-    q_index = int(parts[1])          # исправлено
-    is_correct = parts[2] == "1"     # исправлено
-    
-    if q_index != user_data[user_id]["current_question"]:
-        await callback.answer("Нельзя хитрить и нажимать старые кнопки! 😉")
-        return
-        
-    if is_correct:
-        user_data[user_id]["current_question"] += 1
-        await callback.message.edit_text("⚡️ <b>Верно!</b> Загружаем следующий уровень...", parse_mode=ParseMode.HTML)
-        await asyncio.sleep(0.5)
-        await ask_question(callback.message, user_id)
-    else:
-        user_data[user_id]["lives"] -= 1
-        
-        if user_data[user_id]["lives"] <= 0:
-            await state.clear()
-            await callback.message.edit_text(
-                "💔 <b>Игра окончена!</b>\n\n"
-                "К сожалению, у тебя закончились жизни.",
-                parse_mode=ParseMode.HTML
-            )
-        else:
-            user_data[user_id]["current_question"] += 1
-            await callback.message.edit_text("❌ <b>Неверно!</b> Ты потерял жизнь.", parse_mode=ParseMode.HTML)
-            await asyncio.sleep(0.5)
-            await ask_question(callback.message, user_id)
-            
-    await callback.answer()
-
-@dp.message()
-async def echo_all(message: types.Message, state: FSMContext):
-    current_state = await state.get_state()
-    if current_state == QuizStates.in_game.state:
-        await message.answer("🤫 <b>Сфокусируйся на квесте!</b>", parse_mode=ParseMode.HTML)
-    else:
-        await message.answer("🔮 Пожалуйста, воспользуйся кнопками меню ниже.")
-
-async def main():
-    await dp.start_polling(bot)
+    await message.answer(response.choices[0].text.strip())
 
 if __name__ == "__main__":
-    asyncio.run(main())
-
+    executor.start_polling(dp, skip_updates=True)
