@@ -1,15 +1,16 @@
-from aiogram import Bot, Dispatcher, executor, types
+import asyncio
+from aiogram import Bot, Dispatcher, types
 import openai
 
 API_TOKEN = "8659093719:AAFgYCwcLSAJyxVgW-Zto415p55lUlspAWw"
 OPENAI_KEY = "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"
 
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()
 
 openai.api_key = OPENAI_KEY
 
-@dp.message_handler()
+@dp.message()
 async def handle_message(message: types.Message):
     response = openai.Completion.create(
         model="text-davinci-003",
@@ -19,5 +20,8 @@ async def handle_message(message: types.Message):
     )
     await message.answer(response.choices[0].text.strip())
 
+async def main():
+    await dp.start_polling(bot)
+
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+    asyncio.run(main())
