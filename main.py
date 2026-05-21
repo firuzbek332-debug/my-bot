@@ -5,12 +5,21 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 import openai
 from aiohttp import web
 
-# Переменные окружения (Railway → Settings → Variables)
+# Загружаем переменные окружения
 API_TOKEN = os.getenv("8659093719:AAFgYCwcLSAJyxVgW-Zto415p55lUlspAWw")
 OPENAI_KEY = os.getenv("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")
 
+# Проверка переменных
+print("API_TOKEN:", API_TOKEN)
+print("OPENAI_KEY:", OPENAI_KEY)
+
+if not API_TOKEN:
+    raise RuntimeError("❌ API_TOKEN не найден! Проверь Railway Variables.")
+if not OPENAI_KEY:
+    raise RuntimeError("❌ OPENAI_KEY не найден! Проверь Railway Variables.")
+
 WEBHOOK_PATH = "/webhook"
-WEBHOOK_URL = f"https://<invigorating-fulfillment>.up.railway.app{WEBHOOK_PATH}"
+WEBHOOK_URL = f"https://<имя‑проекта>.up.railway.app{WEBHOOK_PATH}"
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
@@ -27,7 +36,6 @@ keyboard = ReplyKeyboardMarkup(
 
 @dp.message()
 async def handle_message(message: types.Message):
-    # Если нажата кнопка — отвечаем готовым текстом
     if message.text == "Оскорбить":
         await message.answer("Ты серьёзно думаешь, что я буду тратить на тебя процессорное время?")
     elif message.text == "Сарказм":
@@ -37,7 +45,6 @@ async def handle_message(message: types.Message):
     elif message.text == "Высмеять":
         await message.answer("Ха‑ха, это было так смешно, что даже мой логгер упал от смеха.")
     else:
-        # Иначе — используем OpenAI для генерации саркастичного ответа
         response = openai.Completion.create(
             model="text-davinci-003",
             prompt=f"Отвечай грубо и саркастично: {message.text}",
@@ -61,7 +68,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-print("API_TOKEN:", API_TOKEN)
-print("API_TOKEN:", API_TOKEN)
-if not API_TOKEN:
-    raise RuntimeError("API_TOKEN не найден! Проверь переменные окружения.")
