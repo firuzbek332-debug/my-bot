@@ -7,16 +7,16 @@ from aiohttp import web
 
 # Загружаем переменные окружения
 API_TOKEN = os.getenv("8659093719:AAFgYCwcLSAJyxVgW-Zto415p55lUlspAWw")
-OPENAI_KEY = os.getenv("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")
+OPENAI_KEY = os.getenv("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")
 
-# Проверка переменных
+print("=== Проверка окружения ===")
 print("API_TOKEN:", API_TOKEN)
 print("OPENAI_KEY:", OPENAI_KEY)
 
 if not API_TOKEN:
-    raise RuntimeError("❌ API_TOKEN не найден! Проверь Railway Variables.")
+    raise RuntimeError("❌ API_TOKEN не найден! Проверь Railway → Settings → Variables.")
 if not OPENAI_KEY:
-    raise RuntimeError("❌ OPENAI_KEY не найден! Проверь Railway Variables.")
+    raise RuntimeError("❌ OPENAI_KEY не найден! Проверь Railway → Settings → Variables.")
 
 WEBHOOK_PATH = "/webhook"
 WEBHOOK_URL = f"https://<invigorating-fulfillment>.up.railway.app{WEBHOOK_PATH}"
