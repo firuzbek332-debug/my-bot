@@ -19,7 +19,7 @@ if not OPENAI_KEY:
     raise RuntimeError("❌ OPENAI_KEY не найден! Проверь Railway Variables.")
 
 WEBHOOK_PATH = "/webhook"
-WEBHOOK_URL = f"https://<имя‑проекта>.up.railway.app{WEBHOOK_PATH}"
+WEBHOOK_URL = f"https://<invigorating-fulfillment>.up.railway.app{WEBHOOK_PATH}"
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
