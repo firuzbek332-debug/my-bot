@@ -62,3 +62,6 @@ def main():
 if __name__ == "__main__":
     main()
 print("API_TOKEN:", API_TOKEN)
+print("API_TOKEN:", API_TOKEN)
+if not API_TOKEN:
+    raise RuntimeError("API_TOKEN не найден! Проверь переменные окружения.")
