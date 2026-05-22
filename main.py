@@ -4,6 +4,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 import openai
 from aiohttp import web
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 
 # Загружаем переменные окружения
 API_TOKEN = os.getenv("API_TOKEN")
@@ -61,7 +62,9 @@ async def on_shutdown(app):
 
 def main():
     app = web.Application()
-    dp.setup(app, path=WEBHOOK_PATH)
+    # Новый способ подключения webhook
+    SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
+    setup_application(app, dp, bot=bot)
     app.on_startup.append(on_startup)
     app.on_shutdown.append(on_shutdown)
     web.run_app(app, host="0.0.0.0", port=8000)
