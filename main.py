@@ -6,8 +6,8 @@ import openai
 from aiohttp import web
 
 # Загружаем переменные окружения
-API_TOKEN = os.getenv("8659093719:AAFgYCwcLSAJyxVgW-Zto415p55lUlspAWw")
-OPENAI_KEY = os.getenv("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")
+API_TOKEN = os.getenv("API_TOKEN")
+OPENAI_KEY = os.getenv("OPENAI_KEY")
 
 print("=== Проверка окружения ===")
 print("API_TOKEN:", API_TOKEN)
