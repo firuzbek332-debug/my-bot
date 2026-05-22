@@ -9,19 +9,21 @@ from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_applicati
 # Загружаем переменные окружения
 API_TOKEN = os.getenv("API_TOKEN")
 OPENAI_KEY = os.getenv("OPENAI_KEY")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # Railway Variables
 
 print("=== Проверка окружения ===")
 print("API_TOKEN:", API_TOKEN)
 print("OPENAI_KEY:", OPENAI_KEY)
+print("WEBHOOK_URL:", WEBHOOK_URL)
 
 if not API_TOKEN:
     raise RuntimeError("❌ API_TOKEN не найден! Проверь Railway → Settings → Variables.")
 if not OPENAI_KEY:
     raise RuntimeError("❌ OPENAI_KEY не найден! Проверь Railway → Settings → Variables.")
+if not WEBHOOK_URL:
+    raise RuntimeError("❌ WEBHOOK_URL не найден! Проверь Railway → Settings → Variables.")
 
-# ⚠️ Укажи здесь свой реальный Railway Public URL
 WEBHOOK_PATH = "/webhook"
-WEBHOOK_URL = "https://<invigorating-fulfillment>.up.railway.app/webhook"
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
