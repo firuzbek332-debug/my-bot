@@ -19,8 +19,9 @@ if not API_TOKEN:
 if not OPENAI_KEY:
     raise RuntimeError("❌ OPENAI_KEY не найден! Проверь Railway → Settings → Variables.")
 
+# ⚠️ Укажи здесь свой реальный Railway Public URL
 WEBHOOK_PATH = "/webhook"
-WEBHOOK_URL = f"https://<invigorating-fulfillment>.up.railway.app{WEBHOOK_PATH}"
+WEBHOOK_URL = "https://<invigorating-fulfillment>.up.railway.app/webhook"
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
@@ -58,11 +59,11 @@ async def on_startup(app):
     await bot.set_webhook(WEBHOOK_URL)
 
 async def on_shutdown(app):
+    await bot.session.close()
     await bot.delete_webhook()
 
 def main():
     app = web.Application()
-    # Новый способ подключения webhook
     SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
     setup_application(app, dp, bot=bot)
     app.on_startup.append(on_startup)
